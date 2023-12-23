@@ -31,10 +31,10 @@ while True:
     ## Set up GPIO ports
     # (runs within the loop so that cleanup() can be called at the end)
     gpio.setmode(gpio.BOARD)
-    input1=8
-    input2=10
-    gpio.setup(input1, gpio.IN)
-    gpio.setup(input2, gpio.IN)
+    input1=8 # Board pin 8, GPIO #14
+    input2=10 # Board pin 10, GPIO #15
+    gpio.setup(input1, gpio.IN) # input1 sends a left arrow keystroke
+    gpio.setup(input2, gpio.IN) # input2 sends a right arrow keystroke
     gpio.setwarnings(False)
     # Attempt to access the radio. If SPI isn't found, try again.
     try:
