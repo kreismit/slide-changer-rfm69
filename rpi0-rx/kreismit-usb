@@ -1,0 +1,42 @@
+#!/bin/bash
+# Script to set up a USB gadget called ...
+name=kreismit
+
+addr=0x409
+bus=usb0
+
+cd /sys/kernel/config/usb_gadget
+mkdir -p $name
+cd $name
+
+# Properties are:
+# Vendor: Linux Foundation
+# Product: Multifunction Composite Gadget
+# Device Version: 1.0.0
+# USB Version: 2.0
+echo 0x1d6b > idVendor
+echo 0x0104 > idProduct
+echo 0x0100 > bcdDevice
+echo 0x0200 > bcdUSB
+mkdir -p strings/$addr
+echo "fedcba9876543210" > strings/$addr/serialnumber
+echo "Tim Sierk" > strings/$addr/manufacturer
+echo "USB Remote Keyboard Receiver" > strings/$addr/product
+
+# Set up USB keyboard (USB HID) functionality
+mkdir -p configs/c.1/strings/$addr
+echo "Config 1: USB Keyboard" > configs/c.1/strings/$addr/configuration
+
+mkdir -p functions/hid.$bus
+echo 1 > functions/hid.$bus/protocol
+echo 1 > functions/hid.$bus/subclass
+echo 8 > functions/hid.$bus/report_length
+echo -ne \\x05\\x01\\x09\\x06\\xa1\\x01\\x05\\x07\\x19\\xe0\\x29\\xe7\\x15\\x00\\x25\\x01\\x75\\x01\\x95\\x08\\x81\\x02\\x95\\x01\\x75\\x08\\x81\\x03\\x95\\x05\\x75\\x01\\x05\\x08\\x19\\x01\\x29\\x05\\x91\\x02\\x95\\x01\\x75\\x03\\x91\\x03\\x95\\x06\\x75\\x08\\x15\\x00\\x25\\x65\\x05\\x07\\x19\\x00\\x29\\x65\\x81\\x00\\xc0 > functions/hid.$bus/report_desc
+ln -s functions/hid.$bus configs/c.1
+
+# Set up serial adapter functionality
+mkdir -p functions/acm.$bus
+ln -s functions/acm.$bus configs/c.1/
+
+# End functions
+ls /sys/class/udc > UDC
